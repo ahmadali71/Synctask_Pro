@@ -11,18 +11,25 @@ const connectDB = async () => {
 
   try {
     const conn = await mongoose.connect(uri, {
-      serverSelectionTimeoutMS: 10000,
+      serverSelectionTimeoutMS: 5000,
     });
     console.log(`MongoDB Connected: ${conn.connection.host}`);
     return conn;
   } catch (error) {
-    if (error.message?.includes('ECONNREFUSED') || error.name === 'MongooseServerSelectionError') {
-      throw new Error(
-        `Cannot connect to MongoDB at ${uri}\n` +
-          '→ Run: cd server && npm run db:start   (or start MongoDB Windows service)'
-      );
-    }
-    throw new Error(`MongoDB connection failed: ${error.message}`);
+    console.error(`\n⚠️  MongoDB connection failed: ${error.message}`);
+    console.error('   The server will start, but database-dependent routes will fail until connected.');
+    console.error('   → Make sure MongoDB is running (e.g. npm run db:start)\n');
+    
+    // Attempt to reconnect in the background
+    mongoose.connection.on('disconnected', () => {
+      console.log('MongoDB disconnected. Retrying...');
+      setTimeout(() => {
+        mongoose.connect(uri, { serverSelectionTimeoutMS: 5000 }).catch(() => {});
+      }, 5000);
+    });
+    
+    // Do not throw the error so the server can still start
+    return null;
   }
 };
 
