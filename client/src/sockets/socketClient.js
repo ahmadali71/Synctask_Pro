@@ -3,11 +3,7 @@ import useTaskStore from '../store/useTaskStore';
 import useNotificationStore from '../store/useNotificationStore';
 import toast from 'react-hot-toast';
 
-const SOCKET_URL =
-  import.meta.env.VITE_SOCKET_URL ||
-  (import.meta.env.VITE_API_URL
-    ? import.meta.env.VITE_API_URL.replace('/api', '')
-    : 'http://localhost:5000');
+const SOCKET_URL = '/'; // Proxied to localhost:5000 in dev and Vercel Edge in production
 
 let socket = null;
 let currentWorkspaceId = null;

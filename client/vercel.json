@@ -4,6 +4,7 @@
   "framework": "vite",
   "rewrites": [
     { "source": "/api/(.*)", "destination": "https://synctaskproapi.vercel.app/api/$1" },
+    { "source": "/socket.io/(.*)", "destination": "https://synctaskproapi.vercel.app/socket.io/$1" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
