@@ -51,7 +51,11 @@ app.use(compression());
 // Static files for uploads
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Health check
+// Health check & Root
+app.get('/', (req, res) => {
+  res.status(200).json({ message: 'SyncTask Pro API is running', version: '1.0.0' });
+});
+
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'API is running...' });
 });
