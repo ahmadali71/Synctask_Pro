@@ -107,7 +107,20 @@ function stopLocalMongod() {
 
 // ── Database Connection ──────────────────────────────────────────────
 
+let connectionPromise = null;
+let listenersAttached = false;
+
 const connectDB = async () => {
+  if (mongoose.connection.readyState === 1) {
+    isConnected = true;
+    return mongoose.connection;
+  }
+
+  if (connectionPromise) {
+    await connectionPromise;
+    return mongoose.connection;
+  }
+
   const uri = process.env.MONGO_URI;
 
   if (!uri) {
@@ -121,31 +134,36 @@ const connectDB = async () => {
   await ensureLocalMongod(uri);
 
   // Listen for connection events (register once)
-  mongoose.connection.on('connected', () => {
-    isConnected = true;
-    console.log('✅ MongoDB Connected:', mongoose.connection.host);
-  });
+  if (!listenersAttached) {
+    mongoose.connection.on('connected', () => {
+      isConnected = true;
+      console.log('✅ MongoDB Connected:', mongoose.connection.host);
+    });
 
-  mongoose.connection.on('disconnected', () => {
-    isConnected = false;
-    console.log('⚠️  MongoDB disconnected.');
-  });
+    mongoose.connection.on('disconnected', () => {
+      isConnected = false;
+      console.log('⚠️  MongoDB disconnected.');
+    });
 
-  mongoose.connection.on('error', (err) => {
-    isConnected = false;
-    console.error('MongoDB connection error:', err.message);
-  });
+    mongoose.connection.on('error', (err) => {
+      isConnected = false;
+      console.error('MongoDB connection error:', err.message);
+    });
+    listenersAttached = true;
+  }
 
   // Try to connect with retries
   const attemptConnection = async () => {
     try {
-      await mongoose.connect(uri, {
+      connectionPromise = mongoose.connect(uri, {
         serverSelectionTimeoutMS: 5000,
         bufferCommands: false, // Fail fast if DB is disconnected
       });
+      await connectionPromise;
       return true;
     } catch (error) {
       console.error(`⚠️  MongoDB connection attempt failed: ${error.message}`);
+      connectionPromise = null;
       return false;
     }
   };
