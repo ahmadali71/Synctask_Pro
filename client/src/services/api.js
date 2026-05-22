@@ -27,6 +27,17 @@ api.interceptors.response.use(
       }
     }
 
+    if (!error.response) {
+      // Network error (server down or disconnected)
+      error.message = 'Unable to connect to the server. Please check your connection.';
+      return Promise.reject(error);
+    }
+
+    if (error.response?.status >= 500) {
+      error.message = error.response.data?.message || 'Server encountered an error. Please try again.';
+      return Promise.reject(error);
+    }
+
     return Promise.reject(error);
   }
 );

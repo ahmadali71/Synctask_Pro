@@ -26,29 +26,13 @@ const NavItem = ({ to, icon: Icon, label, active }) => (
   </Link>
 );
 
-const MainLayout = () => {
+const SidebarContent = ({ isOnline }) => {
   const { user, logout } = useAuthStore();
-  const { theme, toggleTheme, initTheme } = useThemeStore();
-  const { activeWorkspace, workspaces, fetchWorkspaces, createWorkspace, setActiveWorkspace } = useWorkspaceStore();
-  const navigate = useNavigate();
+  const { theme, toggleTheme } = useThemeStore();
+  const { activeWorkspace, workspaces, createWorkspace, setActiveWorkspace } = useWorkspaceStore();
   const location = useLocation();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const navigate = useNavigate();
   const [wsDropdownOpen, setWsDropdownOpen] = useState(false);
-  const [notifOpen, setNotifOpen] = useState(false);
-  const fetchNotifications = useNotificationStore((s) => s.fetchNotifications);
-  const unreadCount = useNotificationStore((s) => s.unreadCount);
-
-  useEffect(() => { initTheme(); }, [initTheme]);
-  useEffect(() => { fetchWorkspaces(); }, [fetchWorkspaces]);
-  useEffect(() => { if (user) fetchNotifications(); }, [user, fetchNotifications]);
-  useEffect(() => {
-    const onOn = () => setIsOnline(true);
-    const onOff = () => setIsOnline(false);
-    window.addEventListener('online', onOn);
-    window.addEventListener('offline', onOff);
-    return () => { window.removeEventListener('online', onOn); window.removeEventListener('offline', onOff); };
-  }, []);
 
   const handleLogout = async () => {
     await logout();
@@ -67,7 +51,7 @@ const MainLayout = () => {
     }
   };
 
-  const SidebarContent = () => (
+  return (
     <div className="flex flex-col h-full">
       <div className="h-[4.5rem] flex items-center gap-3 px-5 border-b border-[var(--border-default)]">
         <div className="h-10 w-10 rounded-xl gradient-bg flex items-center justify-center shadow-md">
@@ -168,11 +152,33 @@ const MainLayout = () => {
       </div>
     </div>
   );
+};
+
+const MainLayout = () => {
+  const { user } = useAuthStore();
+  const { initTheme } = useThemeStore();
+  const { activeWorkspace, fetchWorkspaces } = useWorkspaceStore();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [notifOpen, setNotifOpen] = useState(false);
+  const fetchNotifications = useNotificationStore((s) => s.fetchNotifications);
+  const unreadCount = useNotificationStore((s) => s.unreadCount);
+
+  useEffect(() => { initTheme(); }, [initTheme]);
+  useEffect(() => { fetchWorkspaces(); }, [fetchWorkspaces]);
+  useEffect(() => { if (user) fetchNotifications(); }, [user, fetchNotifications]);
+  useEffect(() => {
+    const onOn = () => setIsOnline(true);
+    const onOff = () => setIsOnline(false);
+    window.addEventListener('online', onOn);
+    window.addEventListener('offline', onOff);
+    return () => { window.removeEventListener('online', onOn); window.removeEventListener('offline', onOff); };
+  }, []);
 
   return (
     <div className="flex h-screen overflow-hidden app-mesh-bg">
       <aside className="hidden lg:flex w-[17.5rem] flex-col border-r border-[var(--border-default)] bg-[var(--bg-elevated)]/80 backdrop-blur-xl">
-        <SidebarContent />
+        <SidebarContent isOnline={isOnline} />
       </aside>
 
       <AnimatePresence>
@@ -192,7 +198,7 @@ const MainLayout = () => {
               transition={{ type: 'spring', damping: 28, stiffness: 280 }}
               className="fixed inset-y-0 left-0 w-[18rem] z-50 bg-[var(--bg-elevated)] border-r border-[var(--border-default)] shadow-2xl lg:hidden"
             >
-              <SidebarContent />
+              <SidebarContent isOnline={isOnline} />
             </motion.aside>
           </>
         )}
