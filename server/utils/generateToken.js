@@ -2,8 +2,8 @@ const jwt = require('jsonwebtoken');
 
 const cookieOptions = {
   httpOnly: true,
-  secure: process.env.NODE_ENV !== 'development',
-  sameSite: 'strict',
+  secure: process.env.NODE_ENV === 'production',
+  sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
 };
 
 const generateToken = (res, userId) => {
