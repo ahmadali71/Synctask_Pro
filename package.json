@@ -1,0 +1,17 @@
+{
+  "name": "synctask-pro",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Enterprise real-time collaborative task management",
+  "scripts": {
+    "db:start": "cd server && npm run db:start",
+    "db:check": "cd server && npm run db:check",
+    "db:up": "docker compose up -d",
+    "db:down": "docker compose down",
+    "dev:server": "cd server && npm run dev",
+    "dev:client": "cd client && npm run dev",
+    "install:all": "cd server && npm install && cd ../client && npm install",
+    "build": "cd client && npm run build",
+    "test": "cd server && npm test && cd ../client && npm test"
+  }
+}
