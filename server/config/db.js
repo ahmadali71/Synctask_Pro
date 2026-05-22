@@ -32,6 +32,9 @@ const connectDB = () => {
   connectionPromise = mongoose.connect(uri, {
     serverSelectionTimeoutMS: 10000,
     bufferCommands: false,
+  }).catch((err) => {
+    connectionPromise = null;
+    throw err;
   });
 
   return connectionPromise;
@@ -47,7 +50,10 @@ const ensureDB = async (req, res, next) => {
     next();
   } catch (err) {
     console.error('DB middleware error:', err.message);
-    res.status(503).json({ message: 'Database unavailable. Please try again shortly.' });
+    res.status(503).json({ 
+      message: 'Database unavailable. Please try again shortly.',
+      error: process.env.NODE_ENV === 'production' ? null : err.message
+    });
   }
 };
 
