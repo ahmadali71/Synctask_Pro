@@ -9,7 +9,7 @@ let connectionPromise = null;
 const connectDB = () => {
   if (connectionPromise) return connectionPromise;
 
-  const uri = process.env.MONGO_URI;
+  const uri = process.env.MONGO_URI || 'mongodb+srv://SynctaskPro71:SynctaskPro71@synctaskpro.3ichm09.mongodb.net/synctask-pro';
   if (!uri) {
     console.error('MONGO_URI is not set.');
     return Promise.reject(new Error('MONGO_URI is not set'));

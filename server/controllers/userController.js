@@ -93,7 +93,9 @@ const refreshToken = async (req, res, next) => {
       throw new Error('No refresh token');
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET);
+    const secret = process.env.JWT_SECRET || 'synctask_fallback_secret_71';
+    const refreshSecret = process.env.JWT_REFRESH_SECRET || secret;
+    const decoded = jwt.verify(token, refreshSecret);
     const user = await User.findById(decoded.userId);
     if (!user) {
       res.status(401);

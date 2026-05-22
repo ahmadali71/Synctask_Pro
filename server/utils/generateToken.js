@@ -7,11 +7,14 @@ const cookieOptions = {
 };
 
 const generateToken = (res, userId) => {
-  const accessToken = jwt.sign({ userId }, process.env.JWT_SECRET, {
+  const secret = process.env.JWT_SECRET || 'synctask_fallback_secret_71';
+  const refreshSecret = process.env.JWT_REFRESH_SECRET || secret;
+
+  const accessToken = jwt.sign({ userId }, secret, {
     expiresIn: process.env.JWT_EXPIRES_IN || '1d',
   });
 
-  const refreshToken = jwt.sign({ userId }, process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET, {
+  const refreshToken = jwt.sign({ userId }, refreshSecret, {
     expiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '30d',
   });
 
