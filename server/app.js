@@ -77,6 +77,10 @@ app.get('/health', (req, res) => {
   res.status(200).json({ status: 'API is running...' });
 });
 
+// Ensure DB is connected before any API route runs (critical for Vercel serverless)
+const { ensureDB } = require('./config/db');
+app.use('/api', ensureDB);
+
 // Routes
 app.use('/api/users', userRoutes);
 app.use('/api/workspaces', workspaceRoutes);
