@@ -20,9 +20,23 @@ const connectDB = async () => {
     console.error('   The server will start, but database-dependent routes will fail until connected.');
     console.error('   → Make sure MongoDB is running (e.g. npm run db:start)\n');
     
-    // Attempt to reconnect in the background
+    // Polling function for initial connect failure
+    const retryConnection = () => {
+      console.log('Retrying MongoDB connection in 5 seconds...');
+      setTimeout(async () => {
+        try {
+          await mongoose.connect(uri, { serverSelectionTimeoutMS: 5000 });
+          console.log(`✅ MongoDB Reconnected!`);
+        } catch (err) {
+          retryConnection();
+        }
+      }, 5000);
+    };
+    retryConnection();
+
+    // Attempt to reconnect if it drops later
     mongoose.connection.on('disconnected', () => {
-      console.log('MongoDB disconnected. Retrying...');
+      console.log('MongoDB connection lost. Retrying...');
       setTimeout(() => {
         mongoose.connect(uri, { serverSelectionTimeoutMS: 5000 }).catch(() => {});
       }, 5000);
